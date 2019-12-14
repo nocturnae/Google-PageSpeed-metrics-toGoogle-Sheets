@@ -1,0 +1,35 @@
+var pageSpeedApiKey = 'insert you api key here';
+var pageSpeedMonitorUrl = 'insert your website's URL here'; 
+function monitor() {
+  var desktop = callPageSpeed('desktop');
+  var mobile = callPageSpeed('mobile');
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getSheetByName('results'); //doublecheck your sheet's name!
+  sheet.appendRow([
+                   Utilities.formatDate(new Date(), 'GMT+1', 'yyyy-MM-dd'),
+                   Utilities.formatDate(new Date(), 'GMT+1', 'hh:mm:ss'),
+                   desktop['lighthouseResult']['categories']['performance']['score'] * 100,
+                   desktop['lighthouseResult']['audits']['metrics']['details']['items'][0]['firstContentfulPaint']/1000 +" s",
+                   desktop['lighthouseResult']['audits']['metrics']['details']['items'][0]['speedIndex']/1000 +" s",
+                   desktop['lighthouseResult']['audits']['metrics']['details']['items'][0]['interactive']/1000 +" s",
+                   desktop['lighthouseResult']['audits']['metrics']['details']['items'][0]['firstMeaningfulPaint']/1000 +" s",
+                   desktop['lighthouseResult']['audits']['metrics']['details']['items'][0]['firstCPUIdle']/1000 +" s",
+                   desktop['lighthouseResult']['audits']['metrics']['details']['items'][0]['estimatedInputLatency'] +  " ms",
+                   desktop['lighthouseResult']['audits']['time-to-first-byte']['numericValue'].toFixed(0) + " ms",
+                   mobile['lighthouseResult']['categories']['performance']['score'] * 100,
+                   mobile['lighthouseResult']['audits']['metrics']['details']['items'][0]['firstContentfulPaint']/1000 +" s",
+                   mobile['lighthouseResult']['audits']['metrics']['details']['items'][0]['speedIndex']/1000 +" s",
+                   mobile['lighthouseResult']['audits']['metrics']['details']['items'][0]['interactive']/1000 +" s",
+                   mobile['lighthouseResult']['audits']['metrics']['details']['items'][0]['firstMeaningfulPaint']/1000 +" s",
+                   mobile['lighthouseResult']['audits']['metrics']['details']['items'][0]['firstCPUIdle']/1000 +" s",
+                   mobile['lighthouseResult']['audits']['metrics']['details']['items'][0]['estimatedInputLatency'] +  " ms",
+                   mobile['lighthouseResult']['audits']['time-to-first-byte']['numericValue'].toFixed(0) + " ms"
+                  ]);
+}
+
+function callPageSpeed(strategy) {
+  var pageSpeedUrl = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=' + pageSpeedMonitorUrl + '&key=' + pageSpeedApiKey + '&strategy=' + strategy;
+  var response = UrlFetchApp.fetch(pageSpeedUrl);
+  var json = response.getContentText();
+  return JSON.parse(json);
+}
